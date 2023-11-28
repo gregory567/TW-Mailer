@@ -67,14 +67,13 @@ void updateBlacklist(const std::string &blacklistFile, const std::string &userna
 
 // checks if the entry is older than 60 seconds. if it is -> removes it and returns true
 bool removeFromBlacklist(const std::string &blacklistFile, const std::string &username, const std::string &ipaddress);
-// int argc, char **argv
 
 ///////////////////////////////////////////////////////////////////////////////
 
 int main(int argc, char *argv[])
-
 {
 
+    // if less then 2 arguments are provided, we send an error message and information about correct usage to the server
     if (argc <= 2)
     {
         std::cerr << "Error: You must provide at least one argument." << std::endl;
@@ -82,7 +81,7 @@ int main(int argc, char *argv[])
         return 1;
     }
 
-    // mail-spooling directory
+    // mail-spool-directory
     mailDir = argv[2];
 
     // serverport
@@ -262,16 +261,18 @@ int main(int argc, char *argv[])
     return EXIT_SUCCESS;
 }
 
+// function for handling communication with the client, used in threads
 void *clientCommunication(void *data)
 {
     pthread_mutex_lock(&mutex);
     threadCounter++;
     pthread_mutex_unlock(&mutex);
 
-    // used to as condition to exit the while loops (when user sends QUIT or ctrl+c)
+    // used as condition to exit the while-loops (when user sends QUIT or ctrl+c)
     int clientQuit = 0;
     char buffer[BUF];
     int size;
+    // assign the socket descriptor passed to this function to a new variable
     int current_socket = *(int *)data;
     free(data);
 
@@ -294,6 +295,7 @@ void *clientCommunication(void *data)
         return NULL;
     }
 
+    // auxiliary variable used to exit the login while-loop
     int userExists = 0;
 
     // recieve client login credentials
@@ -366,7 +368,6 @@ void *clientCommunication(void *data)
                 }
                 clientQuit = 1;
                 break;
-                // pthread_exit(NULL);
             }
         }
         pthread_mutex_unlock(&mutex);
